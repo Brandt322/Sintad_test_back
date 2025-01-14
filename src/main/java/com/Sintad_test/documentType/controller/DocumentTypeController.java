@@ -5,6 +5,7 @@ import com.Sintad_test.documentType.models.response.DocumentTypeResponse;
 import com.Sintad_test.exceptions.BadRequestException;
 import com.Sintad_test.exceptions.NotFoundException;
 import com.Sintad_test.shared.interfaces.Crud;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class DocumentTypeController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createDocument(@RequestBody DocumentTypeRequest documentTypeRequest) {
+    public ResponseEntity<Object> createDocument(@Valid @RequestBody DocumentTypeRequest documentTypeRequest) {
         try {
             DocumentTypeResponse documentTypeResponse = crudInterface.create(documentTypeRequest);
             return new ResponseEntity<>(documentTypeResponse, HttpStatus.CREATED);
@@ -44,12 +45,14 @@ public class DocumentTypeController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> updateDocument(@PathVariable Long id,@RequestBody DocumentTypeRequest documentTypeRequest) {
+    public ResponseEntity<Object> updateDocument(@PathVariable Long id,@Valid @RequestBody DocumentTypeRequest documentTypeRequest) {
         try {
             DocumentTypeResponse documentTypeResponse = crudInterface.update(id, documentTypeRequest);
             return new ResponseEntity<>(documentTypeResponse, HttpStatus.OK);
         } catch (NotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (BadRequestException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 

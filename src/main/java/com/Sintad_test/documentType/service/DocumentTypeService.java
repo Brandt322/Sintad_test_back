@@ -1,27 +1,31 @@
 package com.Sintad_test.documentType.service;
 
+import com.Sintad_test.documentType.interfaces.DocumentType;
 import com.Sintad_test.documentType.models.entities.TbDocumentType;
-import com.Sintad_test.documentType.models.mapper.DocumentTypeMapper;
 import com.Sintad_test.documentType.models.request.DocumentTypeRequest;
 import com.Sintad_test.documentType.models.response.DocumentTypeResponse;
 import com.Sintad_test.documentType.repository.DocumentTypeRepository;
 import com.Sintad_test.exceptions.BadRequestException;
 import com.Sintad_test.exceptions.NotFoundException;
 import com.Sintad_test.shared.interfaces.Crud;
+import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTypeResponse> {
 
     private final DocumentTypeRepository documentTypeRepository;
-    private final DocumentTypeMapper mapEntityToDto;
+    private final DocumentType documentType;
 
-    public DocumentTypeService(DocumentTypeRepository documentTypeRepository, DocumentTypeMapper mapEntityToDto) {
+    public DocumentTypeService(DocumentTypeRepository documentTypeRepository, DocumentType mapEntityToDto, Validator validator) {
         this.documentTypeRepository = documentTypeRepository;
-        this.mapEntityToDto = mapEntityToDto;
+        this.documentType = mapEntityToDto;
     }
 
     @Override
@@ -40,14 +44,11 @@ public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTy
 
     @Override
     public DocumentTypeResponse create(DocumentTypeRequest request) {
-        if(request.equals(null)){
-            throw new NotFoundException("Data is empty");
-        }
 
-        TbDocumentType tbDocumentType = mapEntityToDto.dtoToEntity(request);
+        TbDocumentType tbDocumentType = documentType.dtoToEntity(request);
         documentTypeRepository.save(tbDocumentType);
 
-        return mapEntityToDto.entityToDto(tbDocumentType);
+        return documentType.entityToDto(tbDocumentType);
     }
 
     @Override
@@ -59,18 +60,19 @@ public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTy
         tbDocumentType.setDescription(request.getDescription());
 
         documentTypeRepository.save(tbDocumentType);
-        return mapEntityToDto.entityToDto(tbDocumentType);
+        return documentType.entityToDto(tbDocumentType);
     }
 
     @Override
     public void delete(Long id) {
-        Optional<DocumentTypeResponse> documentType = documentTypeRepository.findDocumentTypeById(id);
 
         if(id == null || id == 0){
             throw new BadRequestException("Id is empty");
         }
 
-        if (documentType.isEmpty()) {
+        Optional<DocumentTypeResponse> documentTypeResponse = documentTypeRepository.findDocumentTypeById(id);
+
+        if (documentTypeResponse.isEmpty()) {
             throw new NotFoundException("Document type not found with id: " + id);
         }
 

@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,23 +45,25 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
-        if (bindingResult.hasErrors())
-            return new ResponseEntity<>(new Response(400, "El nombre de usuario y/o la contraseña no son válidos"), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest loginRequest ) {
 
-        Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtProviderMethods.generateToken(authentication);
+        try {
+            Authentication authentication =
+                    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtProviderMethods.generateToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        JwtDto jwtDto = new JwtDto(getUser(), jwt, userDetails.getAuthorities());
-        return new ResponseEntity<>(jwtDto, HttpStatus.OK);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            JwtDto jwtDto = new JwtDto(getUser(), jwt, userDetails.getAuthorities());
+            return new ResponseEntity<>(jwtDto, HttpStatus.OK);
+        } catch (BadCredentialsException e) {
+            return new ResponseEntity<>(new Response("Usuario o contraseña incorrectos", 400), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout() {
         SecurityContextHolder.clearContext();
-        return new ResponseEntity<>(new Response(200, "Sesión cerrada con éxito"), HttpStatus.OK);
+        return new ResponseEntity<>(new Response("Sesión cerrada con éxito", 200), HttpStatus.OK);
     }
 }
