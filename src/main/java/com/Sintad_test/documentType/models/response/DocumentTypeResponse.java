@@ -14,12 +14,11 @@ import lombok.Setter;
 public class DocumentTypeResponse implements IHandleCrudResponse {
     private Long id;
 
-    @Column(name = "codigo", nullable = false, length = 20)
     private String code;
 
-    @Column(name = "nombre", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "descripcion", length = 200)
     private String description;
+
+    private Boolean state;
 }

@@ -13,15 +13,15 @@ import java.util.Optional;
 public interface DocumentTypeRepository extends JpaRepository<TbDocumentType, Long> {
 
     @Query(
-        "SELECT new com.Sintad_test.documentType.models.response.DocumentTypeResponse(d.id, d.code, d.name, d.description) " +
+        "SELECT new com.Sintad_test.documentType.models.response.DocumentTypeResponse(d.id, d.code, d.name, d.description, d.state) " +
         "FROM TbDocumentType d " +
         "WHERE d.id = ?1"
     )
     Optional<DocumentTypeResponse> findDocumentTypeById(Long id);
 
     @Query(
-        "SELECT new com.Sintad_test.documentType.models.response.DocumentTypeResponse(d.id, d.code, d.name, d.description) " +
-        "FROM TbDocumentType d"
+        "SELECT new com.Sintad_test.documentType.models.response.DocumentTypeResponse(d.id, d.code, d.name, d.description, d.state) " +
+        "FROM TbDocumentType d ORDER BY CAST (d.code AS int) DESC"
     )
     List<DocumentTypeResponse> findAlltoList();
 }

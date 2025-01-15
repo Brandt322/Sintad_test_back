@@ -58,6 +58,7 @@ public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTy
         tbDocumentType.setCode(request.getCode());
         tbDocumentType.setName(request.getName());
         tbDocumentType.setDescription(request.getDescription());
+        tbDocumentType.setState(request.getState());
 
         documentTypeRepository.save(tbDocumentType);
         return documentType.entityToDto(tbDocumentType);

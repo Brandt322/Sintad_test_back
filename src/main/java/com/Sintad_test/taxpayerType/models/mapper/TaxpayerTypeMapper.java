@@ -17,7 +17,9 @@ public class TaxpayerTypeMapper implements TaxpayerType {
 
     @Override
     public TbTaxpayerType dtoToEntity(TaxpayerTypeBasicRequest request) {
-        return modelMapper.map(request, TbTaxpayerType.class);
+        TbTaxpayerType tbTaxpayerType = modelMapper.map(request, TbTaxpayerType.class);
+        tbTaxpayerType.setState(true);
+        return tbTaxpayerType;
     }
 
     @Override

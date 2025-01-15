@@ -1,8 +1,8 @@
 package com.Sintad_test.config;
 
-import com.Sintad_test.config.interfaces.JwtProviderMethods;
 import com.Sintad_test.config.jwt.JWTEntryPoint;
 import com.Sintad_test.config.jwt.JWTTokenFilter;
+import com.Sintad_test.config.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,8 +12,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -22,30 +22,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final UserDetailsService userDetailsService;
     private final JWTEntryPoint jwtEntryPoint;
-    private final JwtProviderMethods jwtProviderMethods;
 
-    public SecurityConfig(UserDetailsService userDetailsService, JWTEntryPoint jwtEntryPoint, JwtProviderMethods jwtProviderMethods) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig( JWTEntryPoint jwtEntryPoint) {
         this.jwtEntryPoint = jwtEntryPoint;
-        this.jwtProviderMethods = jwtProviderMethods;
     }
 
     @Bean
     public JWTTokenFilter jwtTokenFilter() {
-        return new JWTTokenFilter(jwtProviderMethods, userDetailsService);
+        return new JWTTokenFilter();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     // Configurar los endpoints publicos
                     http.requestMatchers( "/auth/**").permitAll()
-//                            .requestMatchers("/ws/**").hasRole(Roles.ADMIN)
                             .anyRequest().authenticated();
                 })
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint))
@@ -59,10 +54,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailService){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
-        provider.setUserDetailsService(userDetailsService);
+        provider.setUserDetailsService(userDetailService);
         return provider;
     }
 

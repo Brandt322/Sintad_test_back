@@ -23,4 +23,6 @@ public class DocumentTypeRequest implements IHandleCrudRequest {
 
     @Size(max = 200, message = "Maximum description length is 200 characters")
     private String description;
+
+    private Boolean state;
 }
