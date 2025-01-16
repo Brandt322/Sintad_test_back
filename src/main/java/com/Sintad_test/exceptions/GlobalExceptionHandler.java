@@ -19,6 +19,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @ControllerAdvice(annotations = RestController.class)
@@ -44,9 +46,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(DataIntegrityViolationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ResponseEntity<Object> handleDataIntegrityViolationException(Exception ex) {
+  public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+    String errorMessage = ex.getMostSpecificCause().getMessage();
+    String specificMessage = ex.getMostSpecificCause().getMessage();
+    Pattern pattern = Pattern.compile("Duplicate entry '(.*)' for key '.*\\.(.*)_UNIQUE'");
+    Matcher matcher = pattern.matcher(specificMessage);
+
+    if (matcher.find()) {
+      String duplicateValue = matcher.group(1);
+      String columnName = matcher.group(2);
+      errorMessage = "El valor '" + duplicateValue + "' para la columna '" + columnName + "' ya existe";
+    }
+
     Map<String, Object> response = new HashMap<>();
-    response.put("message", ex.getMessage());
+    response.put("message", errorMessage);
     response.put("status", HttpStatus.BAD_REQUEST.value());
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
   }
@@ -71,7 +84,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ResponseEntity<Map<String, Object>> internalServerErrorExceptionHandler(Exception ex) {
     Map<String, Object> response = new HashMap<>();
-    response.put("message", "An unexpected error occurred: " + ex.getMessage());
+    response.put("message", "Ocurrio un error inesperado: " + ex.getMessage());
     response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
 
     return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

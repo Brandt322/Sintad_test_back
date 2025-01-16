@@ -1,6 +1,7 @@
 package com.Sintad_test.taxpayerType.repository;
 
 import com.Sintad_test.taxpayerType.models.entities.TbTaxpayerType;
+import com.Sintad_test.taxpayerType.models.response.TaxpayerBasicListResponse;
 import com.Sintad_test.taxpayerType.models.response.TaxpayerTypeBasicResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,12 @@ public interface TaxpayerTypeRepository extends JpaRepository<TbTaxpayerType, Lo
         "FROM TbTaxpayerType t"
     )
     List<TaxpayerTypeBasicResponse> findAlltoList();
+
+    @Query(
+        "SELECT new com.Sintad_test.taxpayerType.models.response.TaxpayerBasicListResponse(t.id, t.name) " +
+        "FROM TbTaxpayerType t " +
+        "WHERE t.state = true " +
+        "ORDER BY t.name ASC"
+    )
+    List<TaxpayerBasicListResponse> findBasicTaxpayerType();
 }

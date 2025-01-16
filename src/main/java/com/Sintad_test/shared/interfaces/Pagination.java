@@ -2,6 +2,6 @@ package com.Sintad_test.shared.interfaces;
 
 import com.Sintad_test.shared.pagination.PagedResponse;
 
-public interface Pagination <T extends IHandlePaginationRequest, G extends IHandlePaginationResponse> {
-    PagedResponse<? extends IHandleCrudResponse> findAll(int page, int size, String search);
+public interface Pagination < G extends IHandlePaginationResponse> {
+    PagedResponse<G> findAll(int page, int size, int documentType, int taxpayerType, String state);
 }

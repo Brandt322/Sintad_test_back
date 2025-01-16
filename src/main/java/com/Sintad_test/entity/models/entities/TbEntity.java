@@ -4,6 +4,7 @@ import com.Sintad_test.documentType.models.entities.TbDocumentType;
 import com.Sintad_test.taxpayerType.models.entities.TbTaxpayerType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,9 +23,11 @@ public class TbEntity {
     private Long id;
 
     @Column(name = "nro_documento", nullable = false, unique = true, length = 25)
+    @NotNull(message = "Numero de documento es requerido")
     private String documentNumber;
 
     @Column(name = "razon_social", nullable = false, length = 100)
+    @NotNull(message = "Razon social es requerido")
     private String companyName;
 
     @Column(name = "nombre_comercial", length = 100)
@@ -37,10 +40,11 @@ public class TbEntity {
     private String cellphone;
 
     @Column(name = "estado", nullable = false)
+    @NotNull(message = "Estado es requerido")
     private Boolean state;
 
     @ManyToOne
-    @JoinColumn(name = "id_tipo_contribuyente")
+    @JoinColumn(name = "id_tipo_contribuyente", nullable = true)
     @JsonBackReference
     private TbTaxpayerType tbTaxpayerType;
 

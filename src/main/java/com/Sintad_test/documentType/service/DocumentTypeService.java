@@ -1,15 +1,16 @@
 package com.Sintad_test.documentType.service;
 
 import com.Sintad_test.documentType.interfaces.DocumentType;
+import com.Sintad_test.documentType.interfaces.DocumentTypeList;
 import com.Sintad_test.documentType.models.entities.TbDocumentType;
 import com.Sintad_test.documentType.models.request.DocumentTypeRequest;
+import com.Sintad_test.documentType.models.response.DocumentTypeBasicResponse;
 import com.Sintad_test.documentType.models.response.DocumentTypeResponse;
 import com.Sintad_test.documentType.repository.DocumentTypeRepository;
 import com.Sintad_test.exceptions.BadRequestException;
 import com.Sintad_test.exceptions.NotFoundException;
 import com.Sintad_test.shared.interfaces.Crud;
 import jakarta.transaction.Transactional;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTypeResponse> {
+public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTypeResponse>, DocumentTypeList {
 
     private final DocumentTypeRepository documentTypeRepository;
     private final DocumentType documentType;
@@ -37,7 +38,7 @@ public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTy
     public DocumentTypeResponse findById(Long id) {
         Optional<DocumentTypeResponse> documentTypeResponse = documentTypeRepository.findDocumentTypeById(id);
         if (documentTypeResponse.isEmpty()) {
-            throw new NotFoundException("Document type not found with id: " + id);
+            throw new NotFoundException("Documento no encontrado con el:  " + id);
         }
         return documentTypeResponse.get();
     }
@@ -53,7 +54,7 @@ public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTy
 
     @Override
     public DocumentTypeResponse update(Long id, DocumentTypeRequest request) {
-        TbDocumentType tbDocumentType = documentTypeRepository.findById(id).orElseThrow(() -> new NotFoundException("Document type not found with id: " + id));
+        TbDocumentType tbDocumentType = documentTypeRepository.findById(id).orElseThrow(() -> new NotFoundException("Documento no encontrado con el:  " + id));
 
         tbDocumentType.setCode(request.getCode());
         tbDocumentType.setName(request.getName());
@@ -68,15 +69,20 @@ public class DocumentTypeService implements Crud<DocumentTypeRequest, DocumentTy
     public void delete(Long id) {
 
         if(id == null || id == 0){
-            throw new BadRequestException("Id is empty");
+            throw new BadRequestException("El id no puede estar vacío");
         }
 
         Optional<DocumentTypeResponse> documentTypeResponse = documentTypeRepository.findDocumentTypeById(id);
 
         if (documentTypeResponse.isEmpty()) {
-            throw new NotFoundException("Document type not found with id: " + id);
+            throw new NotFoundException("Documento no encontrado con el: " + id);
         }
 
         documentTypeRepository.deleteById(id);
+    }
+
+    @Override
+    public List<DocumentTypeBasicResponse> findBasicDocumentType() {
+        return documentTypeRepository.findBasicDocumentType();
     }
 }

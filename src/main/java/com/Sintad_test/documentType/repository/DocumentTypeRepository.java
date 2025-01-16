@@ -1,6 +1,7 @@
 package com.Sintad_test.documentType.repository;
 
 import com.Sintad_test.documentType.models.entities.TbDocumentType;
+import com.Sintad_test.documentType.models.response.DocumentTypeBasicResponse;
 import com.Sintad_test.documentType.models.response.DocumentTypeResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,12 @@ public interface DocumentTypeRepository extends JpaRepository<TbDocumentType, Lo
         "FROM TbDocumentType d ORDER BY CAST (d.code AS int) DESC"
     )
     List<DocumentTypeResponse> findAlltoList();
+
+    @Query(
+        "SELECT new com.Sintad_test.documentType.models.response.DocumentTypeBasicResponse(d.id, d.name) " +
+        "FROM TbDocumentType d " +
+        " WHERE d.state = true " +
+        "ORDER BY d.name ASC"
+    )
+    List<DocumentTypeBasicResponse> findBasicDocumentType();
 }

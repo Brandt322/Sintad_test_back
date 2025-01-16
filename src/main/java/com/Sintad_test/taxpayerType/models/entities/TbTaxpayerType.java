@@ -26,8 +26,8 @@ public class TbTaxpayerType {
     private Integer id;
 
     @Column(name = "nombre", nullable = false, length = 50)
-    @NotNull(message = "Name is required")
-    @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
+    @NotNull(message = "Nombre es requerido")
+    @Size(min = 3, max = 50, message = "Nombre debe ser mayor que 3 y menor que 50")
     private String name;
 
     @Column(name = "estado", nullable = false)

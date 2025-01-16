@@ -4,8 +4,10 @@ import com.Sintad_test.exceptions.BadRequestException;
 import com.Sintad_test.exceptions.NotFoundException;
 import com.Sintad_test.shared.interfaces.Crud;
 import com.Sintad_test.taxpayerType.interfaces.TaxpayerType;
+import com.Sintad_test.taxpayerType.interfaces.TaxpayerTypeList;
 import com.Sintad_test.taxpayerType.models.entities.TbTaxpayerType;
 import com.Sintad_test.taxpayerType.models.request.TaxpayerTypeBasicRequest;
+import com.Sintad_test.taxpayerType.models.response.TaxpayerBasicListResponse;
 import com.Sintad_test.taxpayerType.models.response.TaxpayerTypeBasicResponse;
 import com.Sintad_test.taxpayerType.repository.TaxpayerTypeRepository;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TaxpayerTypeService implements Crud<TaxpayerTypeBasicRequest, TaxpayerTypeBasicResponse> {
+public class TaxpayerTypeService implements Crud<TaxpayerTypeBasicRequest, TaxpayerTypeBasicResponse>, TaxpayerTypeList {
     private final TaxpayerTypeRepository taxpayerTypeRepository;
     private final TaxpayerType taxpayerType;
 
@@ -32,7 +34,7 @@ public class TaxpayerTypeService implements Crud<TaxpayerTypeBasicRequest, Taxpa
     public TaxpayerTypeBasicResponse findById(Long id) {
         Optional<TaxpayerTypeBasicResponse> taxpayerTypeBasicResponse = taxpayerTypeRepository.findTaxpayerTypeById(id);
         if ((taxpayerTypeBasicResponse.isEmpty())) {
-            throw new NotFoundException("Taxpayer type not found with id: " + id);
+            throw new NotFoundException("Contribuyente no encontrado con el:  " + id);
         }
         return taxpayerTypeBasicResponse.get();
     }
@@ -48,7 +50,7 @@ public class TaxpayerTypeService implements Crud<TaxpayerTypeBasicRequest, Taxpa
 
     @Override
     public TaxpayerTypeBasicResponse update(Long id, TaxpayerTypeBasicRequest request) {
-        TbTaxpayerType tbTaxpayerType = taxpayerTypeRepository.findById(id).orElseThrow(() -> new RuntimeException("Taxpayer type not found with id: " + id));
+        TbTaxpayerType tbTaxpayerType = taxpayerTypeRepository.findById(id).orElseThrow(() -> new RuntimeException("Contribuyente no encontrado con el:  " + id));
         tbTaxpayerType.setName(request.getName());
         tbTaxpayerType.setState(request.getState());
         taxpayerTypeRepository.save(tbTaxpayerType);
@@ -59,15 +61,20 @@ public class TaxpayerTypeService implements Crud<TaxpayerTypeBasicRequest, Taxpa
     @Override
     public void delete(Long id) {
         if(id == null || id == 0){
-            throw new BadRequestException("Id is empty");
+            throw new BadRequestException("El id no puede estar vacío");
         }
 
         Optional<TaxpayerTypeBasicResponse> tbTaxpayerTypeBasicResponse = taxpayerTypeRepository.findTaxpayerTypeById(id);
 
         if (tbTaxpayerTypeBasicResponse.isEmpty()) {
-            throw new NotFoundException("Taxpayer type not found with id: " + id);
+            throw new NotFoundException("Contribuyente no encontrado con el:  " + id);
         }
 
         taxpayerTypeRepository.deleteById(id);
+    }
+
+    @Override
+    public List<TaxpayerBasicListResponse> findBasicTaxpayerType() {
+        return taxpayerTypeRepository.findBasicTaxpayerType();
     }
 }
